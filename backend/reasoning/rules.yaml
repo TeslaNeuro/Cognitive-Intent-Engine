@@ -1,0 +1,142 @@
+# Declarative rules for the reasoning engine.
+# Each rule has:
+#   - name           short, human-readable
+#   - when           list of conditions (AND-combined)
+#   - conclude       a dict of fields to set on the FusedFrame
+#   - explanation    template strings expanded into the explanation list
+#
+# Conditions reference fused-feature names (see backend/fusion/feature_fusion.py)
+# plus the special names: stress, engagement, attention, fatigue, cognitive_load,
+# trend, emotion. Operators: ">", "<", ">=", "<=", "==", "in".
+
+rules:
+  - name: frustration_voice_face
+    when:
+      - feature: pitch_z
+        op: ">"
+        value: 1.2
+      - feature: brow_tension_z
+        op: ">"
+        value: 0.8
+      - feature: has_voice
+        op: "=="
+        value: 1.0
+    conclude:
+      emotion_boost: { frustrated: 0.25 }
+    explanation:
+      - "pitch z=+{pitch_z:.1f} above baseline"
+      - "brow tension z=+{brow_tension_z:.1f} above baseline"
+      - "rule: pitch↑ + brow↑ → frustration"
+
+  - name: disengagement
+    when:
+      - feature: pause_ratio
+        op: ">"
+        value: 0.7
+      - feature: attention_score
+        op: "<"
+        value: 0.4
+    conclude:
+      cognitive_state: "fatigued"
+      intent: "idle"
+      attention: "low"
+    explanation:
+      - "pause ratio {pause_ratio:.2f} sustained"
+      - "attention {attention_score:.2f} below threshold"
+      - "rule: silence↑ + gaze wandering → disengagement"
+
+  - name: overload
+    when:
+      - feature: cognitive_load
+        op: ">"
+        value: 0.65
+      - feature: stress
+        op: ">"
+        value: 0.55
+    conclude:
+      cognitive_state: "overloaded"
+      attention: "dropping"
+    explanation:
+      - "cognitive load {cognitive_load:.2f}, stress {stress:.2f}"
+      - "rule: high brow + pitch variance → overloaded"
+
+  - name: confusion
+    when:
+      - feature: brow_tension_z
+        op: ">"
+        value: 0.6
+      - feature: pitch_z
+        op: "<"
+        value: 0.4
+      - feature: attention_score
+        op: ">"
+        value: 0.5
+    conclude:
+      cognitive_state: "confused"
+      intent: "problem-solving"
+    explanation:
+      - "brow tension up but pitch flat — concentrating"
+      - "rule: brow↑ + pitch≈baseline + attention ok → confused"
+
+  - name: asking_for_help
+    when:
+      - feature: has_voice
+        op: "=="
+        value: 1.0
+      - feature: pitch_z
+        op: ">"
+        value: 0.4
+      - feature: speech_rate
+        op: ">"
+        value: 0.45
+      - feature: face_detected
+        op: "=="
+        value: 1.0
+    conclude:
+      intent: "asking-for-help"
+    explanation:
+      - "speaking with elevated pitch + steady speech rate"
+      - "rule: voiced + pitch↑ + speech_rate moderate → likely asking-for-help"
+
+  - name: exploring
+    when:
+      - feature: gaze_x
+        op: ">"
+        value: -0.2
+      - feature: attention_score
+        op: ">"
+        value: 0.6
+      - feature: pause_ratio
+        op: ">"
+        value: 0.4
+    conclude:
+      intent: "exploring"
+    explanation:
+      - "gaze moving but attention preserved"
+      - "rule: silent + attentive + scanning gaze → exploring"
+
+  - name: fatigue_onset
+    when:
+      - feature: fatigue
+        op: ">"
+        value: 0.6
+    conclude:
+      cognitive_state: "fatigued"
+    explanation:
+      - "fatigue index {fatigue:.2f}"
+      - "rule: sustained low EAR + blink rate → fatigue onset"
+
+  - name: positive_state
+    when:
+      - feature: mouth_curvature
+        op: ">"
+        value: 0.05
+      - feature: emotion
+        op: "in"
+        value: ["happy", "neutral"]
+    conclude:
+      intent: "exploring"
+      cognitive_state: "focused"
+    explanation:
+      - "smile detected, posture stable"
+      - "rule: smile + happy/neutral → positive engaged state"
