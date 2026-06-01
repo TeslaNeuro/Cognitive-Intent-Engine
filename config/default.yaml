@@ -1,0 +1,93 @@
+# =============================================================
+# Cognitive State & Intent Engine — default configuration
+# =============================================================
+# All values can be overridden via env vars (CSE_<UPPER_KEY>) or
+# CLI flags. Keep this file the single source of truth for defaults.
+
+app:
+  name: "Cognitive State & Intent Engine"
+  log_level: "INFO"
+  tick_hz: 10          # how often the orchestrator emits a fused frame
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+vision:
+  camera_index: 0
+  width: 640
+  height: 480
+  fps: 30
+  emotion_model: "backend/models/weights/vision_emotion.pt"
+  use_mediapipe: true
+  flip_horizontal: true        # mirror for natural feel
+  draw_overlays: true
+
+audio:
+  device: null                 # null = default input
+  sample_rate: 16000
+  channels: 1
+  block_size: 1024             # frames per callback
+  feature_window_s: 1.0        # rolling window for feature extraction
+  feature_hop_s: 0.1           # how often features are recomputed
+  emotion_model: "backend/models/weights/audio_emotion.pt"
+  vad_energy_threshold: 0.004  # below this = silence
+  n_mfcc: 20
+
+fusion:
+  # initial weights for decision fusion; can be learned online
+  audio_weight: 0.45
+  vision_weight: 0.55
+  context_history_s: 10.0
+  enable_learned_fuser: true   # online softmax MLP fuser
+
+temporal:
+  window_s: 8.0
+  hidden_size: 64
+  num_layers: 1
+  model_path: "backend/models/weights/temporal.pt"
+
+reasoning:
+  rules_path: "backend/reasoning/rules.yaml"
+  ml_classifier_path: "backend/models/weights/intent_classifier.joblib"
+
+calibration:
+  enabled: true
+  min_samples: 60              # ~6 s at 10 Hz before baseline is "ready"
+  ema_alpha: 0.02              # how fast baseline adapts
+  persist_path: "sessions/calibration.json"
+
+events:
+  frustration_z: 1.5
+  attention_drop_z: 1.2
+  fatigue_ear_threshold: 0.21
+  fatigue_min_seconds: 5.0
+  disengagement_engagement_threshold: 0.25
+  cooldown_s: 4.0
+
+anomaly:
+  enabled: true
+  history_size: 600            # 60 s @ 10 Hz
+  z_threshold: 3.0
+  retrain_every_s: 30
+
+adaptive:
+  enabled: true
+  rules:
+    suggest_break:
+      when_stress_above: 0.75
+      sustained_s: 8.0
+    offer_help:
+      when_state: "confused"
+      sustained_s: 4.0
+    reduce_ui_density:
+      when_state: "overloaded"
+      sustained_s: 6.0
+    encourage:
+      when_trend: "improving"
+      sustained_s: 5.0
+
+logging:
+  session_dir: "sessions"
+  console_table: true          # render rich table tick-by-tick
