@@ -2,6 +2,7 @@
   "name": "cognitive-state-engine-dashboard",
   "private": true,
   "version": "0.1.0",
+  "author": "Arshia Keshvari (@TeslaNeuro)",
   "type": "module",
   "scripts": {
     "dev": "vite",

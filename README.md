@@ -1,4 +1,4 @@
-# Cognitive State & Intent Engine
+# 🧠 Cognitive State & Intent Engine
 
 A production-grade, modular multimodal AI system that combines real-time **computer vision** and **microphone audio** to infer:
 
@@ -12,7 +12,7 @@ It exposes results both as a **structured JSON stream** and through a live **Rea
 
 ---
 
-## 1. Highlights
+## ✨ Highlights
 
 - **Three-level fusion**: feature-level, decision-level (calibrated, learnable weights) and context-level (temporal + behaviour-aware).
 - **Temporal LSTM/GRU** over the last *N* seconds to predict trend direction and stress trajectory.
@@ -26,7 +26,22 @@ It exposes results both as a **structured JSON stream** and through a live **Rea
 
 ---
 
-## 2. Architecture
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|-------|--------------|
+| **Runtime** | Python 3.10+ |
+| **ML / inference** | PyTorch, torchvision, torchaudio, scikit-learn, NumPy, SciPy |
+| **Vision** | OpenCV, MediaPipe, Pillow |
+| **Audio** | librosa, sounddevice, soundfile |
+| **API** | FastAPI, Uvicorn, WebSockets, Pydantic, PyYAML |
+| **Frontend** | React 18, TypeScript, Vite, Recharts |
+| **Edge export** (optional) | ONNX, ONNX Runtime; TensorFlow / TFLite for Jetson deployment |
+| **Dev / test** | pytest, rich, loguru, tqdm |
+
+---
+
+## 🏗️ Architecture
 
 ```
 ┌──────────────────────────┐    ┌──────────────────────────┐
@@ -74,7 +89,7 @@ It exposes results both as a **structured JSON stream** and through a live **Rea
 
 ---
 
-## 3. Layout
+## 📁 Layout
 
 ```
 cognitive-state-engine/
@@ -100,9 +115,9 @@ cognitive-state-engine/
 
 ---
 
-## 4. Quickstart
+## 🚀 Quickstart
 
-### 4.1 Backend (Python 3.10+)
+### 🐍 Backend (Python 3.10+)
 
 ```bash
 cd cognitive-state-engine
@@ -129,7 +144,7 @@ Run **headless** (no API, console only) for quick smoke-testing:
 python -m backend.main --headless
 ```
 
-### 4.2 Frontend (Node 18+)
+### ⚛️ Frontend (Node 18+)
 
 ```bash
 cd frontend
@@ -138,7 +153,7 @@ npm run dev
 # http://localhost:5173
 ```
 
-### 4.3 Training (optional)
+### 🎓 Training (optional)
 
 The system **ships with lightweight pretrained-style heads** (initialized with sensible weights) so it runs end-to-end immediately. To improve accuracy on your domain, train your own:
 
@@ -155,7 +170,7 @@ python -m training.train_temporal --data ./logs/sessions
 
 Trained weights are saved into `backend/models/weights/` and picked up automatically.
 
-### 4.4 Edge deployment
+### 📦 Edge deployment
 
 ```bash
 python -m scripts.convert_to_tflite --model vision_emotion --quantize int8
@@ -166,7 +181,7 @@ See [`scripts/README_jetson.md`](scripts/README_jetson.md) for Jetson Nano notes
 
 ---
 
-## 5. Output format
+## 📤 Output format
 
 Every ~100 ms the backend emits a structured frame on the WebSocket:
 
@@ -200,13 +215,13 @@ Every ~100 ms the backend emits a structured frame on the WebSocket:
 
 ---
 
-## 6. Configuration
+## ⚙️ Configuration
 
 `config/default.yaml` controls cameras, sample rates, model paths, thresholds, fusion weights and adaptive responses. CLI flags and env vars override.
 
 ---
 
-## 7. Performance
+## ⚡ Performance
 
 - Vision pipeline: ~25–30 FPS on a modern laptop CPU (MediaPipe).
 - Audio pipeline: ~10 Hz feature extraction on 1 s rolling buffer.
@@ -216,6 +231,16 @@ Every ~100 ms the backend emits a structured frame on the WebSocket:
 
 ---
 
-## 8. Status
+## 📊 Status
 
 This is a **professional prototype**: every module is in place, runs end-to-end, and the model heads are designed to be replaced with your own trained weights. See `training/README.md` for what to train next.
+
+---
+
+## 👤 Author
+
+Created and maintained by **Arshia Keshvari** (`@TeslaNeuro`).
+
+## 📜 License
+
+**[`MIT`](./LICENSE)**
