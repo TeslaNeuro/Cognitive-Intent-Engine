@@ -1,6 +1,6 @@
 # 🧠 Cognitive State & Intent Engine
 
-A production-grade, modular multimodal AI system that combines real-time **computer vision** and **microphone audio** to infer:
+A modular multimodal AI system that combines real-time **computer vision** and **microphone audio** to infer:
 
 - **Emotion** — happy, sad, angry, neutral, frustrated
 - **Cognitive state** — focused, confused, overloaded, fatigued
