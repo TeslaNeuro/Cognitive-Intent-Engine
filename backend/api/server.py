@@ -258,13 +258,12 @@ def create_app(cfg: AppConfig, orch: Orchestrator) -> FastAPI:
             if f is not None:
                 await ws.send_text(f.model_dump_json())
             while True:
-                # We just keep the socket alive; the broadcaster pushes frames.
-                msg = await ws.receive_text()
-                if msg == "ping":
+                msg = await ws.receive()
+                if msg.get("type") == "websocket.disconnect":
+                    break
+                if msg.get("text") == "ping":
                     await ws.send_text("pong")
         except WebSocketDisconnect:
-            pass
-        except Exception:
             pass
         finally:
             await broadcaster.disconnect(ws)

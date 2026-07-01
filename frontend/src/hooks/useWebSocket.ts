@@ -45,7 +45,11 @@ export function useFusedFrameStream(historySize = 600): {
 
     const connect = () => {
       const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const url = `${proto}//${window.location.host}/ws`;
+      // In dev, connect directly to the backend to avoid Vite proxy EPIPE noise
+      // when React StrictMode mounts/unmounts quickly.
+      const url = import.meta.env.DEV
+        ? `ws://localhost:8000/ws`
+        : `${proto}//${window.location.host}/ws`;
       setStatus("connecting");
       ws = new WebSocket(url);
 
